@@ -1,0 +1,11 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C#: JwtWebApiDotNet7 [Default Configuration]",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/JwtWebApiDotNet7/JwtWebApiDotNet7.csproj"
+        }
+    ]
+}
