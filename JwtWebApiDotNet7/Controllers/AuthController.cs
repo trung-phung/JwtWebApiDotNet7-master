@@ -25,7 +25,7 @@ namespace JwtWebApiDotNet7.Controllers
 
 
         [HttpPost("register")]
-        public async Task<ActionResult<User>> Register(UserDto request)
+        public async Task<ActionResult<UserDto>> Register(UserDto request)
         {
             
             if(_context.USER.Any(e => e.Username == request.Username)){
@@ -33,18 +33,23 @@ namespace JwtWebApiDotNet7.Controllers
             }
             string passwordHash
                 = BCrypt.Net.BCrypt.HashPassword(request.Password);
-            User user = new User();
-            user.Username = request.Username;
-            user.Password = passwordHash;
-            user.UserRole = "User";
+            User user = new User
+            {
+                Username = request.Username,
+                Password = passwordHash,
+                UserRole = "User",
+                Gender = request.Gender,
+                FName = request.FName,
+                LName = request.LName,
+                Address = request.Address,
+                Phone = request.Phone
+            };
+            UserDto dto = new UserDto{
+                Username = request.Username,
+            };
             _context.USER.Add(user);
             await _context.SaveChangesAsync();
-            return CreatedAtAction("User", new { id = user.ID }, user);
-        }
-
-        private async Task CreateAsync(User user){
-            _context.USER.Add(user);
-            await _context.SaveChangesAsync();
+            return Ok(dto);
         }
 
         [HttpPost("login")]
@@ -58,7 +63,8 @@ namespace JwtWebApiDotNet7.Controllers
             //         .Where(b => b.Username == request.Username)
             //         .FirstOrDefault();
 
-            var user = _context.USER.Single(x => x.Username == request.Username);
+            // var user = _context.USER.Where(p => p.Username == request.Username).First();
+            var user = _context.USER.SingleOrDefault(x => x.Username == request.Username);
             if (user == null)
             {
                 return BadRequest("User not found.");
@@ -88,7 +94,7 @@ namespace JwtWebApiDotNet7.Controllers
 
             var token = new JwtSecurityToken(
                     claims: claims,
-                    expires: DateTime.Now.AddDays(1),
+                    expires: DateTime.Now.AddSeconds(500),
                     signingCredentials: creds
                 );
 

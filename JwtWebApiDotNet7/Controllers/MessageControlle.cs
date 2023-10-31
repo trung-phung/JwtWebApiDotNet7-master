@@ -5,61 +5,53 @@ using Microsoft.EntityFrameworkCore;
 
 namespace JwtWebApiDotNet7.Controllers
 {
-    [Route("user/[controller]")]
+    [Route("message/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class MessageController : ControllerBase
     {
 private readonly PDBContext _context;
 
 
-        public UserController(PDBContext context)
+        public MessageController(PDBContext context)
         {
             _context = context;
         }
 
 
-        [HttpGet("get_users"), Authorize(Roles = "Admin")]
-        public async Task<ActionResult<IEnumerable<User>>> Getusers()
+        [HttpGet("get_messages"), Authorize(Roles = "Admin,User")]
+        public async Task<ActionResult<IEnumerable<Messages>>> GetMessages()
         {
-            return await _context.USER.ToListAsync();
+            return await _context.MESSAGES.ToListAsync();
         }
 
 
-        [HttpGet("get_user/{id}"), Authorize(Roles = "Admin")]
-        public async Task<ActionResult<User>> Getuser(int id)
+        [HttpGet("get_message/{id}"), Authorize(Roles = "Admin")]
+        public async Task<ActionResult<Messages>> GetMessage(int id)
         {
-            var user = await _context.USER.FindAsync(id);
+            var message = await _context.MESSAGES.FindAsync(id);
 
-            if (user == null)
+            if (message == null)
             {
                 return NotFound();
             }
 
-            return user;
+            return message;
         }
 
 
-        // POST: api/user
-        [HttpPost("create_user"), Authorize(Roles = "Admin")]
-        public async Task<ActionResult<User>> Postuser(UserDto request)
+        // POST: api/messages
+        [HttpPost("create_message"), Authorize(Roles = "Admin")]
+        public async Task<ActionResult<Messages>> PostMessage(Messages request)
         {
-                        string passwordHash
-                = BCrypt.Net.BCrypt.HashPassword(request.Password);
-            User user = new User
+
+            Messages messages = new Messages
             {
-                Username = request.Username,
-                Password = passwordHash,
-                UserRole = "Admin",
-                Gender = request.Gender,
-                FName = request.FName,
-                LName = request.LName,
-                Address = request.Address,
-                Phone = request.Phone
+                Message = request.Message
             };
-            _context.USER.Add(user);
+            _context.MESSAGES.Add(messages);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("Create_Admin", new { id = user.ID }, user);
+            return CreatedAtAction("Create_Mess", new { id = messages.Occasion_ID }, messages);
         }
 
 
@@ -81,7 +73,7 @@ private readonly PDBContext _context;
         //     return user; //204 No Content
         // }
 
-        // DELETE: api/user/5
+        // DELETE: api/message/5
         [HttpDelete("delete/{id}"), Authorize(Roles = "Admin")]
         
         public async void Deleteuser(int id)

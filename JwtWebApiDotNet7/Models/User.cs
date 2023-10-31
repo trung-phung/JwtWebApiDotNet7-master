@@ -15,22 +15,22 @@ namespace JwtWebApiDotNet7.Models
         public string UserRole {get;set;}
 
         [Column("F_Name")]
-        public  string FName {get;set;}
+        public  string? FName {get;set;}
 
         [Column("L_Name")]
-        public  string LName {get;set;}
+        public  string? LName {get;set;}
 
         [Column("DOB")]
-        public  DateTime DOB {get;set;}
+        public  DateTime? DOB {get;set;}
 
         [Column("Gender")]
-        public  string Gender {get;set;}
+        public  string? Gender {get;set;}
 
         [Column("P_No")]
-        public  string Phone {get;set;}
+        public  string? Phone {get;set;}
     
         [Column("Address")]
-        public  string Address {get;set;}
+        public  string? Address {get;set;}
 
         [Required]
         public string Username { get; set; }
