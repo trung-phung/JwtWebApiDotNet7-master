@@ -26,5 +26,6 @@ namespace JwtWebApiDotNet7.Models
         public DbSet<Bouquet> BOUQUET { get; set; }
         public DbSet<User> USER { get; set; }
         public DbSet<Messages> MESSAGES { get; set; }
+        public DbSet<Oders> ODERS { get; set; }
     }
 }

@@ -84,7 +84,7 @@ namespace JwtWebApiDotNet7.Controllers
         {
             List<Claim> claims = new List<Claim> {
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, user.UserRole),
+                new Claim(ClaimTypes.Role, user.UserRole)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
@@ -102,5 +102,8 @@ namespace JwtWebApiDotNet7.Controllers
 
             return jwt;
         }
+
+
     }
+
 }

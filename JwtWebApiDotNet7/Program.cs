@@ -19,7 +19,7 @@ var stringBuilder = new MySqlConnectionStringBuilder();
         stringBuilder["Server"] = "localhost";
         stringBuilder["Database"] = "PROJECT3_BOUQUET";
         stringBuilder["User Id"] = "root";
-        stringBuilder["Password"] = "a";
+        stringBuilder["Password"] = "pw";
         stringBuilder["Port"] = "3306";
 builder.Services.AddDbContext<PDBContext>(options =>
 options.UseMySQL(stringBuilder.ToString()));

@@ -17,11 +17,13 @@ namespace JwtWebApiDotNet7.Models
 
         public DateTime? Date{get; set;}
 
-        public int UserID { get; set; }
+        public int? UserID { get; set; }
 
         public int? OccasionID{ get; set; }
 
         public string?  CustomMessage { get; set; }
+
+        public string?  Status { get; set; }
 
     }
 }

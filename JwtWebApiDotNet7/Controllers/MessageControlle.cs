@@ -54,43 +54,5 @@ private readonly PDBContext _context;
             return CreatedAtAction("Create_Mess", new { id = messages.Occasion_ID }, messages);
         }
 
-
-
-
-        // [HttpPut("update_user"), Authorize(Roles = "Admin")]
-        // public async Task<ActionResult<User>> Putuser(User user)
-        // {
-        //     _context.Entry(user).State = EntityState.Modified;
-        //     if (userExists(user.ID))
-        //     {
-        //         await _context.SaveChangesAsync();
-        //     }
-        //     else
-        //     {
-        //         throw new Exception("user is not exists");
-        //     }
-
-        //     return user; //204 No Content
-        // }
-
-        // DELETE: api/message/5
-        [HttpDelete("delete/{id}"), Authorize(Roles = "Admin")]
-        
-        public async void Deleteuser(int id)
-        {
-            var user = await _context.USER.FindAsync(id);
-            if (user == null)
-            {
-                throw new Exception("user is not exists");
-            }
-
-            _context.USER.Remove(user);
-            await _context.SaveChangesAsync();
-        
-        }
-        private bool userExists(int id)
-        {
-            return _context.USER.Any(e => e.ID == id);
-        }
     }
     }
