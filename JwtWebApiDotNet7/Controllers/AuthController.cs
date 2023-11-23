@@ -16,7 +16,7 @@ namespace JwtWebApiDotNet7.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly PDBContext _context;
-        public AuthController(IConfiguration configuration,PDBContext context)
+        public AuthController(IConfiguration configuration, PDBContext context)
         {
             _configuration = configuration;
             _context = context;
@@ -27,8 +27,9 @@ namespace JwtWebApiDotNet7.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(UserDto request)
         {
-            
-            if(_context.USER.Any(e => e.Username == request.Username)){
+
+            if (_context.USER.Any(e => e.Username == request.Username))
+            {
                 return BadRequest("User already exists");
             }
             string passwordHash
@@ -44,7 +45,8 @@ namespace JwtWebApiDotNet7.Controllers
                 Address = request.Address,
                 Phone = request.Phone
             };
-            UserDto dto = new UserDto{
+            UserDto dto = new UserDto
+            {
                 Username = request.Username,
             };
             _context.USER.Add(user);
@@ -53,7 +55,7 @@ namespace JwtWebApiDotNet7.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<User>> LoginAsync(LoginDto request)
+        public async Task<ActionResult<LoginResponse>> LoginAsync(LoginDto request)
         {
             // var user =  _context.USER.SingleOrDefault(mUser => mUser.Username == request.Username);
             // var userEF =  from b in _context.USER
@@ -76,8 +78,11 @@ namespace JwtWebApiDotNet7.Controllers
             }
 
             string token = CreateToken(user);
-
-            return Ok(token);
+            LoginResponse response = new LoginResponse()
+            {
+                token = token
+            };
+            return Ok(response);
         }
 
         private string CreateToken(User user)
