@@ -57,15 +57,6 @@ namespace JwtWebApiDotNet7.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<LoginResponse>> LoginAsync(LoginDto request)
         {
-            // var user =  _context.USER.SingleOrDefault(mUser => mUser.Username == request.Username);
-            // var userEF =  from b in _context.USER
-            //        where b.Username == request.Username
-            //        select b;
-            // var user = _context.USER
-            //         .Where(b => b.Username == request.Username)
-            //         .FirstOrDefault();
-
-            // var user = _context.USER.Where(p => p.Username == request.Username).First();
             var user = _context.USER.SingleOrDefault(x => x.Username == request.Username);
             if (user == null)
             {

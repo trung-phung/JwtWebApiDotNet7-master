@@ -1,3 +1,4 @@
+using JwtWebApiDotNet7.Dto;
 using JwtWebApiDotNet7.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -5,11 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace JwtWebApiDotNet7.Controllers
 {
-    [Route("message/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class MessageController : ControllerBase
     {
-private readonly PDBContext _context;
+        private readonly PDBContext _context;
 
 
         public MessageController(PDBContext context)
@@ -41,7 +42,7 @@ private readonly PDBContext _context;
 
         // POST: api/messages
         [HttpPost("create_message"), Authorize(Roles = "Admin")]
-        public async Task<ActionResult<Messages>> PostMessage(Messages request)
+        public async Task<ActionResult<MessagesDto>> PostMessage(MessagesDto request)
         {
 
             Messages messages = new Messages
@@ -51,8 +52,25 @@ private readonly PDBContext _context;
             _context.MESSAGES.Add(messages);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("Create_Mess", new { id = messages.Occasion_ID }, messages);
+            return Ok(request);
+        }
+        [HttpGet("delete_message"), Authorize(Roles = "Admin")]
+        public void Delete(int id)
+        {
+            var message = _context.MESSAGES.Where(x => x.Occasion_ID == id).First();
+            if (message != null)
+            {
+                _context.MESSAGES.Remove(message);
+                _context.SaveChangesAsync();
+            }
+            else
+            {
+                throw new Exception("message is not exists");
+
+            }
+
+
         }
 
     }
-    }
+}

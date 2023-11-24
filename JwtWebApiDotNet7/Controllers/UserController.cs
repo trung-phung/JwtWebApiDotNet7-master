@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace JwtWebApiDotNet7.Controllers
 {
-    [Route("user/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
     {
-private readonly PDBContext _context;
+        private readonly PDBContext _context;
 
 
         public UserController(PDBContext context)
@@ -25,7 +25,7 @@ private readonly PDBContext _context;
         }
 
 
-        [HttpGet("get_user/{id}"), Authorize(Roles = "Admin")]
+        [HttpGet("get_user"), Authorize(Roles = "Admin")]
         public async Task<ActionResult<User>> Getuser(int id)
         {
             var user = await _context.USER.FindAsync(id);
@@ -43,8 +43,8 @@ private readonly PDBContext _context;
         [HttpPost("create_user"), Authorize(Roles = "Admin")]
         public async Task<ActionResult<User>> Postuser(UserDto request)
         {
-                        string passwordHash
-                = BCrypt.Net.BCrypt.HashPassword(request.Password);
+            string passwordHash
+    = BCrypt.Net.BCrypt.HashPassword(request.Password);
             User user = new User
             {
                 Username = request.Username,
@@ -59,7 +59,7 @@ private readonly PDBContext _context;
             _context.USER.Add(user);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("Create_Admin", new { id = user.ID }, user);
+            return Ok(user);
         }
 
 
@@ -82,23 +82,23 @@ private readonly PDBContext _context;
         // }
 
         // DELETE: api/user/5
-        [HttpDelete("delete/{id}"), Authorize(Roles = "Admin")]
-        
-        public async void Deleteuser(int id)
+        [HttpGet("delete"), Authorize(Roles = "Admin")]
+
+        public void Deleteuser(int id)
         {
-            var user = await _context.USER.FindAsync(id);
+            var user = _context.USER.Where(x => x.ID == id).First();
             if (user == null)
             {
                 throw new Exception("user is not exists");
             }
 
             _context.USER.Remove(user);
-            await _context.SaveChangesAsync();
-        
+            _context.SaveChangesAsync();
+
         }
         private bool userExists(int id)
         {
             return _context.USER.Any(e => e.ID == id);
         }
     }
-    }
+}

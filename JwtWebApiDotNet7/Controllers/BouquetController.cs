@@ -1,3 +1,4 @@
+using System.Collections;
 using JwtWebApiDotNet7.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace JwtWebApiDotNet7.Controllers
 {
     [ApiController]
-    [Route("bouquet/[controller]")]
+    [Route("api/[controller]")]
     public class BouquetController : ControllerBase
     {
         private readonly PDBContext _context;
@@ -20,13 +21,47 @@ namespace JwtWebApiDotNet7.Controllers
 
 
         [HttpGet("get_bouquets"), Authorize(Roles = "Admin,User")]
-        public async Task<ActionResult<IEnumerable<Bouquet>>> GetBouquets()
+        public async Task<ActionResult<IEnumerable<BouquetDto>>> GetBouquets()
         {
-            return await _context.BOUQUET.ToListAsync();
+
+            var list = await _context.BOUQUET.ToListAsync();
+            var listDto = new ArrayList();
+
+
+            string Imageurl = string.Empty;
+            string hosturl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
+
+
+
+            foreach (var a in list)
+            {
+                try
+                {
+                    string Filepath = _environment.WebRootPath + "\\Upload\\product\\" + a.Name;
+                    string imagepath = Filepath + "\\" + a.Name + ".png";
+                    if (System.IO.File.Exists(imagepath))
+                    {
+                        Imageurl = hosturl + "/Upload/product/" + a.Name + "/" + a.Name + ".png";
+                    }
+                    else
+                    {
+                    }
+                }
+                catch (Exception)
+                {
+                }
+                BouquetDto dto = new BouquetDto();
+                dto.Name = a.Name;
+                dto.Price = a.Price;
+                dto.Photo = Imageurl;
+                dto.Id = a.Bouquet_ID;
+                listDto.Add(dto);
+            }
+            return Ok(listDto);
         }
 
 
-        [HttpGet("get_bouquet/{id}"), Authorize(Roles = "Admin,User")]
+        [HttpGet("get_bouquet"), Authorize(Roles = "Admin,User")]
         public async Task<ActionResult<BouquetDto>> GetBouquet(int id)
         {
             var bouquet = await _context.BOUQUET.FindAsync(id);
@@ -54,7 +89,8 @@ namespace JwtWebApiDotNet7.Controllers
             {
             }
             // string photoURL = GetImage(bouquet.Name);
-            BouquetDto dto = new BouquetDto(){
+            BouquetDto dto = new BouquetDto()
+            {
                 Name = bouquet.Name,
                 Price = bouquet.Price,
                 Photo = Imageurl
@@ -78,64 +114,31 @@ namespace JwtWebApiDotNet7.Controllers
             _context.BOUQUET.Add(bouquet);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetBouquet", new { id = bouquet.Bouquet_ID }, bouquet);
+            return Ok(bouquet);
         }
 
-
-        // public string? GetImage(string bouquetName)
-        // {
-        //     string Imageurl = string.Empty;
-        //     string hosturl = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}";
-        //     try
-        //     {
-        //         string Filepath = _environment.WebRootPath + "\\Upload\\product\\" + bouquetName;
-        //         string imagepath = Filepath + "\\" + bouquetName + ".png";
-        //         if (System.IO.File.Exists(imagepath))
-        //         {
-        //             Imageurl = hosturl + "/Upload/product/" + bouquetName + "/" + bouquetName + ".png";
-        //         }
-        //         else
-        //         {
-        //             return null;
-        //         }
-        //     }
-        //     catch (Exception)
-        //     {
-        //     }
-        //     return Imageurl;
-
-        // }
-
-
-        // [HttpPut("update_bouquet"), Authorize(Roles = "Admin")]
-        // public async Task<ActionResult<Bouquet>> PutBouquet(string name, int price, IFormFile formFile)
-        // {
-        //     _context.Entry(bouquet).State = EntityState.Modified;
-        //     if (BouquetExists(bouquet.Bouquet_ID))
-        //     {
-        //         await _context.SaveChangesAsync();
-        //     }
-        //     else
-        //     {
-        //         throw new Exception("Bouquet is not exists");
-        //     }
-        //     UploadImage(formFile, name);
-        //     return bouquet; //204 No Content
-        // }
-
         // DELETE: api/bouquet/5
-        [HttpDelete("delete/{id}"), Authorize(Roles = "Admin")]
+        [HttpGet("delete"), Authorize(Roles = "Admin")]
 
-        public async void Deletebouquet(int id)
+        public void Deletebouquet(int id)
         {
-            var bouquet = await _context.BOUQUET.FindAsync(id);
-            if (bouquet == null)
+            if (BouquetExists(id))
             {
-                throw new Exception("Bouquet is not exists");
+                var bouquet = _context.BOUQUET.Where(x => x.Bouquet_ID == id).First();
+                if (bouquet != null)
+                {
+                    _context.BOUQUET.Remove(bouquet);
+                    _context.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new Exception("Bouquet is not exists");
+
+                }
+
+
             }
 
-            _context.BOUQUET.Remove(bouquet);
-            await _context.SaveChangesAsync();
 
         }
         private bool BouquetExists(int id)

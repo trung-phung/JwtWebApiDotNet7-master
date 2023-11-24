@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 namespace JwtWebApiDotNet7.Controllers
 {
-    [Route("oder/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
 
-    public class OderController : ControllerBase
+    public class OrderController : ControllerBase
     {
         private readonly PDBContext _context;
 
@@ -18,62 +18,62 @@ namespace JwtWebApiDotNet7.Controllers
             var claimsIdentity = User.Identity as ClaimsIdentity;
             return _context.USER.Where(x => x.Username == claimsIdentity.Name).First();
         }
-        public OderController(PDBContext context)
+        public OrderController(PDBContext context)
         {
             _context = context;
         }
 
 
-        [HttpGet("admin_get_oders"), Authorize(Roles = "Admin")]
-        public async Task<ActionResult<IEnumerable<Oders>>> GetAdminOders()
+        [HttpGet("admin_get_orders"), Authorize(Roles = "Admin")]
+        public async Task<ActionResult<IEnumerable<Orders>>> GetAdminOrders()
         {
-            return await _context.ODERS.ToListAsync();
+            return await _context.ORDERS.ToListAsync();
         }
 
 
 
-        [HttpGet("get_my_oders"), Authorize(Roles = "Admin,User")]
-        public async Task<ActionResult<IEnumerable<Oders>>> GetOders()
+        [HttpGet("get_my_orders"), Authorize(Roles = "Admin,User")]
+        public ActionResult<IEnumerable<Orders>> GetOrders()
         {
 
-            return _context.ODERS.Where(a => a.UserID == GetUser().ID).ToList();
+            return _context.ORDERS.Where(a => a.User_ID == GetUser().ID).ToList();
         }
 
 
-        [HttpGet("get_oder/{id}"), Authorize(Roles = "Admin,User")]
-        public async Task<ActionResult<Oders>> GetMessage(int id)
+        [HttpGet("get_order"), Authorize(Roles = "Admin,User")]
+        public async Task<ActionResult<Orders>> GetMessage(int id)
         {
-            var oder = await _context.ODERS.FindAsync(id);
+            var order = await _context.ORDERS.FindAsync(id);
 
-            if (oder == null)
+            if (order == null)
             {
                 return NotFound();
             }
             var user = GetUser();
-            if (user.ID != oder.UserID && user.UserRole != "Admin")
+            if (user.ID != order.User_ID && user.UserRole != "Admin")
             {
                 throw new Exception("Không có quyền xem đơn hàng của người khác");
             }
-            return oder;
+            return Ok(order);
         }
 
 
-        // POST: api/oders
-        [HttpPost("create_oder"), Authorize(Roles = "Admin,User")]
-        public async Task<ActionResult<Oders>> PostMessage(Oders request)
+        // POST: api/orders
+        [HttpPost("create_order"), Authorize(Roles = "Admin,User")]
+        public async Task<ActionResult<Orders>> PostMessage(Orders request)
         {
             request.Status = "I";
-            request.UserID = GetUser().ID;
-            _context.ODERS.Add(request);
+            request.User_ID = GetUser().ID;
+            _context.ORDERS.Add(request);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("Create_Oder", new { id = request.ID }, request);
+            return Ok(request);
         }
 
 
 
 
-        // [HttpPut("update_oder"), Authorize(Roles = "Admin,User")]
+        // [HttpPut("update_order"), Authorize(Roles = "Admin,User")]
         // public async Task<ActionResult<User>> Putuser(User user)
         // {
         //     _context.Entry(user).State = EntityState.Modified;
@@ -89,38 +89,38 @@ namespace JwtWebApiDotNet7.Controllers
         //     return user; //204 No Content
         // }
 
-        [HttpGet("approve_oder/{id}"), Authorize(Roles = "Admin")]
-        public async void Putuser(int id)
+        [HttpGet("approve_order"), Authorize(Roles = "Admin")]
+        public void Approve(int id)
         {
 
-            var oder = await _context.ODERS.FindAsync(id);
-            if (oder == null)
+            var order = _context.ORDERS.Where(x => x.ID == id).First();
+            if (order == null)
             {
-                throw new Exception("oder is not exists");
+                throw new Exception("order is not exists");
             }
-            oder.Status = "A";
-            await _context.SaveChangesAsync();
+            order.Status = "A";
+            _context.SaveChangesAsync();
         }
 
 
-        // DELETE: api/oder/5
-        [HttpGet("cance/{id}"), Authorize(Roles = "Admin,User")]
+        // DELETE: api/order/5
+        [HttpGet("cancel"), Authorize(Roles = "Admin,User")]
 
-        public async void Canceluser(int id)
+        public void Cancel(int id)
         {
-            var oder = await _context.ODERS.FindAsync(id);
-            if (oder == null)
+
+            var order = _context.ORDERS.Where(x => x.ID == id).First();
+            if (order == null)
             {
-                throw new Exception("oder is not exists");
+                throw new Exception("order is not exists");
             }
-            if (oder.Status == "I")
+            if (order.Status == "I")
             {
                 var user = GetUser();
-                if (user.UserRole == "Admin" || (user.ID == oder.UserID))
+                if (user.UserRole == "Admin" || (user.ID == order.User_ID))
                 {
-                    oder.Status = "C";
-                    _context.ODERS.Remove(oder);
-                    await _context.SaveChangesAsync();
+                    order.Status = "C";
+                    _context.SaveChangesAsync();
                 }
             }
             else
